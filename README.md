@@ -15,6 +15,33 @@
     <img src="https://github.com/willccbb/verifiers/actions/workflows/publish-environments.yml/badge.svg" alt="Envs" />
   </a>
 </p>
+sudo snap install astral-uv --classic
+
+git clone https://github.com/willccbb/verifiers
+cd verifiers
+uv sync --extra train
+uv sync --all-extras && uv pip install flash-attn --no-build-isolation
+uv pip install -e ./environments/wordle
+uv run wandb login
+
+
+
+1.7b inference:
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 uv run vf-vllm --model willcb/Qwen3-1.7B-Wordle \
+    --data-parallel-size 6 --enforce-eager --disable-log-requests
+
+1.7b training:
+CUDA_VISIBLE_DEVICES=6,7 uv run accelerate launch --num-processes 2 \
+    --config-file configs/zero3.yaml examples/grpo/train_wordle.py --size 1.7B
+
+4b inference:
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 uv run vf-vllm --model willcb/Qwen3-4B-Wordle \
+    --data-parallel-size 6 --enforce-eager --disable-log-requests
+
+4b training:
+CUDA_VISIBLE_DEVICES=6,7 uv run accelerate launch --num-processes 2 \
+    --config-file configs/zero3.yaml examples/grpo/train_wordle.py --size 4B
+
 
 <p>
 Environments for LLM Reinforcement Learning
